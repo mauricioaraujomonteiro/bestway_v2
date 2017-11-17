@@ -1,0 +1,68 @@
+/*
+* Nodeclipse/Enide build.gradle template for basic Java project
+*   https://github.com/Nodeclipse/nodeclipse-1/blob/master/org.nodeclipse.enide.editors.gradle/docs/java/basic/build.gradle
+* Initially asked on
+*   http://stackoverflow.com/questions/14017364/how-to-create-java-gradle-project
+* Usage
+*   1. create folder (or general Eclipse project) and put this file inside
+*   2. run `gradle initSourceFolders eclipse` or `gradle initSourceFolders idea`
+* @author Paul Verest; 
+* based on `gradle init --type basic`, that does not create source folders 
+*/
+version = '1.0'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+
+task initSourceFolders { // add << before { to prevent executing during configuration phase
+   sourceSets*.java.srcDirs*.each { it.mkdirs() }
+   sourceSets*.resources.srcDirs*.each { it.mkdirs() }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.0'
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.0.RELEASE")
+    }
+}
+
+
+jar {
+    baseName = 'gs-producing-web-service'
+    version =  '0.1.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.6.2'
+    compile group: 'org.mongodb', name: 'mongo-java-driver', version: '3.0.2'
+    compile("org.springframework.boot:spring-boot-starter-data-mongodb")
+}
+
+task fatJar(type: Jar) {
+	manifest {
+        attributes 'Implementation-Title': 'Minha brassagem',
+        	'Implementation-Version': version,
+        	'Main-Class': 'br.com.minhabrassagem.Application'
+    }
+    baseName = 'minha_brassagem_core_' + version
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
